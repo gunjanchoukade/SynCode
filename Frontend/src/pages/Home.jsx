@@ -1,14 +1,38 @@
 
 import {useState} from "react"
+import toast from "react-hot-toast"
 import {v4 as uuidV4} from "uuid"
+import { useNavigate } from "react-router-dom"
 const Home = ()=>{
     const[userName,setUserName] = useState("");
     const[roomId,setRoomId] = useState("");
-
+    const navigate = useNavigate()
     const createNewRoom = (e)=>{
         e.preventDefault();
         const uuid = uuidV4();
         setRoomId (uuid);
+        toast.success("Created a new room");
+    }
+
+    const joinCreatedRoom = ()=>{
+        if(!roomId || !userName){
+            toast.error("ROOMID & USERNAME is required");
+            return;
+        }
+        // redirecting to editor page
+        // state is used to send data to another page without using url params
+        navigate(`/editor/${roomId}`,{
+            state:{
+                userName,  
+            }
+        })
+        
+    }
+
+    const handleEnterSubmit = (e)=>{
+        if(e.code == "Enter"){
+            joinCreatedRoom();
+        }
     }
 
     return (
@@ -33,12 +57,13 @@ const Home = ()=>{
                 {/* contains Room and Username & buttons */}
                 <div className="flex flex-col gap-4">
                     <h2 className="text-xl font-semibold text-gray-300">Paste Invitation RoomID</h2>
-                    <input onChange={(e)=>setRoomId(e.target.value)} value={roomId}
+                    <input onChange={(e)=>setRoomId(e.target.value)} value={roomId} onKeyUp={handleEnterSubmit}
                     type="text" placeholder="ROOMID"  className="p-2 rounded-sm bg-slate-200 font-semibold outline-none" />
 
-                    <input onChange={(e)=>setUserName(e.target.value)} value={userName}
+                    <input onChange={(e)=>setUserName(e.target.value)} value={userName} onKeyUp={handleEnterSubmit}
                     type="text" placeholder="USERNAME"className="p-2 rounded-sm bg-slate-200 font-semibold outline-none"/>
-                    <button className="bg-green-600 w-20 p-2 rounded-sm text-white font-bold ml-auto hover:bg-green-500 ease-in duration-100">JOIN</button>
+                    <button onClick={joinCreatedRoom} 
+                    className="bg-green-600 w-20 p-2 rounded-sm text-white font-bold ml-auto hover:bg-green-500 ease-in duration-100">JOIN</button>
                 </div>
                 <p className="text-sm text-center text-white">Don't have an invite?
                 <a onClick={createNewRoom} 
